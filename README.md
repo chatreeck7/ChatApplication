@@ -16,7 +16,7 @@ This README provides instructions for setting up and starting our Chat Applicati
 5. Open the `.env` file in a text editor and set the value of `mongodb` to your MongoDB connection URL in the following format: `mongodb://<username>:<password>@<host>:<port>/<database>`
 6. Save and close the `.env` file.
 7. Start the server by running `yarn start` in the `server` directory.
-8. In a new terminal window, start the React app by running `yarn start` in the root directory of the project.
+8. In a new terminal window, start the React app by running `yarn start` in the `public` director.
 9. Once the server and React app are running, you can access the Chat Application by navigating to `http://localhost:3000` in your web browser.
 
 ## Conclusion
