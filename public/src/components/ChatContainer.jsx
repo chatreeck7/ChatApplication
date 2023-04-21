@@ -11,15 +11,18 @@ export default function ChatContainer({ currentChat, socket }) {
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
-  useEffect(async () => {
-    const data = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    );
-    const response = await axios.post(recieveMessageRoute, {
-      from: data._id,
-      to: currentChat._id,
-    });
-    setMessages(response.data);
+  useEffect(() => {
+    async function fetchData() {
+      const data = await JSON.parse(
+        localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
+      );
+      const response = await axios.post(recieveMessageRoute, {
+        from: data._id,
+        to: currentChat._id,
+      });
+      setMessages(response.data);
+    }
+    fetchData();
   }, [currentChat]);
 
   useEffect(() => {
@@ -59,7 +62,7 @@ export default function ChatContainer({ currentChat, socket }) {
         setArrivalMessage({ fromSelf: false, message: msg });
       });
     }
-  }, []);
+  }, [] );
 
   useEffect(() => {
     arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
@@ -75,7 +78,7 @@ export default function ChatContainer({ currentChat, socket }) {
         <div className="user-details">
           <div className="avatar">
             <img
-              src={`data:image/svg+xml;base64,${currentChat.avatarImage}`}
+              src={`${currentChat.avatarImage}`}
               alt=""
             />
           </div>
