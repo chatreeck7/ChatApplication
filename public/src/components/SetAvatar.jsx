@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { Buffer } from "buffer";
 import loader from "../assets/loader.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { setAvatarRoute } from "../utils/APIRoutes";
 export default function SetAvatar() {
-  const api = `https://api.multiavatar.com/4645646`;
   const navigate = useNavigate();
   const [avatars, setAvatars] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +19,7 @@ export default function SetAvatar() {
     theme: "dark",
   };
 
-  useEffect(async () => {
+  useEffect( () => {
     if (!localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY))
       navigate("/login");
   }, []);
@@ -52,18 +50,19 @@ export default function SetAvatar() {
     }
   };
 
-  useEffect(async () => {
+  const generateMultiAvatar = (query) =>
+    `https://api.multiavatar.com/${query}.png?apikey=${process.env.REACT_APP_MA_API_KEY}`;
+
+  useEffect(() => {
     const data = [];
     for (let i = 0; i < 4; i++) {
-      const image = await axios.get(
-        `${api}/${Math.round(Math.random() * 1000)}`
-      );
-      const buffer = new Buffer(image.data);
-      data.push(buffer.toString("base64"));
+      const image = generateMultiAvatar(Math.random().toString(36).substring(2));
+      data.push(image);
     }
     setAvatars(data);
     setIsLoading(false);
   }, []);
+
   return (
     <>
       {isLoading ? (
@@ -84,9 +83,9 @@ export default function SetAvatar() {
                   }`}
                 >
                   <img
-                    src={`data:image/svg+xml;base64,${avatar}`}
-                    alt="avatar"
+                    src={`${avatar}`}
                     key={avatar}
+                    alt="unsplash_avatar"
                     onClick={() => setSelectedAvatar(index)}
                   />
                 </div>
@@ -136,6 +135,7 @@ const Container = styled.div`
       transition: 0.5s ease-in-out;
       img {
         height: 6rem;
+        border-radius: 5rem;  
         transition: 0.5s ease-in-out;
       }
     }
