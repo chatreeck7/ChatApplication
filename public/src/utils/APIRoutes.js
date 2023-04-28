@@ -9,3 +9,5 @@ export const recieveMessageRoute = `${host}/api/messages/getmsg`;
 export const sendGroupMessageRoute = `${host}/api/messages/addmsggroup`;
 export const recieveGroupMessageRoute = `${host}/api/messages/getmsggroup`;
 export const setAvatarRoute = `${host}/api/auth/setavatar`;
+export const changeNicknameRoute = `${host}/api/auth/updatenickname`;
+export const createGroupRoute = `${host}/api/messages/createGroup`;
