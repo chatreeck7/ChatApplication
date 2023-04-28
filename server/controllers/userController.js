@@ -65,6 +65,10 @@ module.exports.updateNickname = async (req, res, next) => {
       { new: true }
     );
     return res.json(users);
+  } catch (ex) {
+    next(ex);
+  }
+};
 module.exports.getAllChatGroups = async (req, res, next) => {
   try {
     const chatGroups = await ChatGroup.find({ users: req.params.id }).select([
