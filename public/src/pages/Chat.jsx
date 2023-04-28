@@ -39,15 +39,14 @@ export default function Chat() {
         setContacts(data.data);
 
         // fetch group chats
-        let groupformat = {
-          avatarImage:  undefined,
-          email: "",
-          username: "",	
-          _id: "",
-          // isGroup: true,
-        }
         const group = await axios.get(`${allGroupsRoute}/${currentUser._id}`);
         group.data.map((g) => {
+          const groupformat = {
+            avatarImage:  undefined,
+            email: "",
+            username: "",	
+            _id: "",
+          }
           groupformat.username = g.name;
           groupformat._id = g._id;
           setContacts((prev) => [...prev, groupformat]);

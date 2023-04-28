@@ -10,12 +10,13 @@ import { useNavigate } from "react-router-dom";
 
 export default function ChatContainer({ currentChat, socket }) {
   const [messages, setMessages] = useState([]);
-  const [currentUser, setCurrentUser] = useState(undefined);
+  const [currentUser, setCurrentUser] = useState(JSON.parse(
+    localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
+  ));
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const navigate = useNavigate();
-
-
+  
   useEffect(async () => {
     if (!localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
       navigate("/login");
@@ -39,15 +40,12 @@ export default function ChatContainer({ currentChat, socket }) {
           to: currentChat._id,
         });
         setMessages(response.data);
-        console.log(response.data)
       } else {
      
-        // console.log("current user: ", currentUser);
         const response = await axios.post(`${recieveGroupMessageRoute}/${currentUser._id}`, {
           chatName: currentChat.username,
         })
         setMessages(response.data);
-        console.log(response.data);
       }
     }
     fetchData();
@@ -89,7 +87,6 @@ export default function ChatContainer({ currentChat, socket }) {
     const msgs = [...messages];
     msgs.push({ fromSelf: true, message: msg });
     setMessages(msgs);
-    console.log(messages);
   };
 
   useEffect(() => {
