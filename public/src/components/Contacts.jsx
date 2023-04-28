@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Logo from "../assets/logo.svg";
+import defaultAvatar from "../assets/default_groupchat.jpeg";
+
 
 export default function Contacts({ contacts, changeChat }) {
   const [currentUserName, setCurrentUserName] = useState(undefined);
@@ -39,10 +41,22 @@ export default function Contacts({ contacts, changeChat }) {
                   onClick={() => changeCurrentChat(index, contact)}
                 >
                   <div className="avatar">
-                    <img
+                    {
+                    // if contact.avatarImage is undefined, use defaultAvatar
+                      contact.avatarImage === undefined ? (
+                      <img
+                      src={`${defaultAvatar}`}
+                      className="defaultAvatar"
+                      alt=""
+                    />
+                      ) : (
+                        <img
                       src={`${contact.avatarImage}`}
                       alt=""
                     />
+                      )
+                    }
+                    
                   </div>
                   <div className="username">
                     <h3>{contact.username}</h3>
@@ -114,6 +128,9 @@ const Container = styled.div`
         img {
           height: 3rem;
         }
+        .defaultAvatar {
+          border-radius: 50%;
+        }
       }
       .username {
         h3 {
@@ -138,6 +155,7 @@ const Container = styled.div`
         max-inline-size: 100%;
       }
     }
+    
     .username {
       h2 {
         color: white;
