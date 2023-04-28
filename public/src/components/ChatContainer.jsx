@@ -4,27 +4,55 @@ import ChatInput from "./ChatInput";
 import Logout from "./Logout";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
-import { sendMessageRoute, recieveMessageRoute } from "../utils/APIRoutes";
+import { sendMessageRoute, recieveMessageRoute, sendGroupMessageRoute, recieveGroupMessageRoute } from "../utils/APIRoutes";
+import defaultAvatar from "../assets/default_groupchat.jpeg";
+import { useNavigate } from "react-router-dom";
 
 export default function ChatContainer({ currentChat, socket }) {
   const [messages, setMessages] = useState([]);
+  const [currentUser, setCurrentUser] = useState(undefined);
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const navigate = useNavigate();
+
+
+  useEffect(async () => {
+    if (!localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
+      navigate("/login");
+    } else {
+      setCurrentUser(
+        await JSON.parse(
+          localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
+        )
+      );
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
       const data = await JSON.parse(
         localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
       );
-      const response = await axios.post(recieveMessageRoute, {
-        from: data._id,
-        to: currentChat._id,
-      });
-      setMessages(response.data);
+      if(currentChat.email !== "") {
+        const response = await axios.post(recieveMessageRoute, {
+          from: data._id,
+          to: currentChat._id,
+        });
+        setMessages(response.data);
+        console.log(response.data)
+      } else {
+     
+        // console.log("current user: ", currentUser);
+        const response = await axios.post(`${recieveGroupMessageRoute}/${currentUser._id}`, {
+          chatName: currentChat.username,
+        })
+        setMessages(response.data);
+        console.log(response.data);
+      }
     }
     fetchData();
   }, [currentChat]);
-
+  
   useEffect(() => {
     const getCurrentChat = async () => {
       if (currentChat) {
@@ -45,15 +73,23 @@ export default function ChatContainer({ currentChat, socket }) {
       from: data._id,
       msg,
     });
-    await axios.post(sendMessageRoute, {
-      from: data._id,
-      to: currentChat._id,
-      message: msg,
-    });
-
+    if (currentChat.email !== "") {
+      await axios.post(sendMessageRoute, {
+          from: data._id,
+          to: currentChat._id,
+          message: msg,
+        });
+    } else {
+      await axios.post(sendGroupMessageRoute, {
+        chatName: currentChat.username,
+        message: msg,
+        sender: data._id,
+      });
+    }
     const msgs = [...messages];
     msgs.push({ fromSelf: true, message: msg });
     setMessages(msgs);
+    console.log(messages);
   };
 
   useEffect(() => {
@@ -77,10 +113,13 @@ export default function ChatContainer({ currentChat, socket }) {
       <div className="chat-header">
         <div className="user-details">
           <div className="avatar">
-            <img
-              src={`${currentChat.avatarImage}`}
-              alt=""
-            />
+            {
+              currentChat.avatarImage !== undefined ? (
+                <img src={`${currentChat.avatarImage}`} alt="" />
+              ): (
+                <img src={`${defaultAvatar}`} alt="" />
+              )
+            }
           </div>
           <div className="username">
             <h3>{currentChat.username}</h3>

@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const ChatGroup = require("../models/chatGroupModel");
 const bcrypt = require("bcrypt");
 
 module.exports.login = async (req, res, next) => {
@@ -64,6 +65,13 @@ module.exports.updateNickname = async (req, res, next) => {
       { new: true }
     );
     return res.json(users);
+module.exports.getAllChatGroups = async (req, res, next) => {
+  try {
+    const chatGroups = await ChatGroup.find({ users: req.params.id }).select([
+      "name",
+      "users",
+    ]);
+    return res.json(chatGroups);
   } catch (ex) {
     next(ex);
   }
