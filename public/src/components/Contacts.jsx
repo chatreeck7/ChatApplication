@@ -10,7 +10,6 @@ import { AiTwotoneSetting } from "react-icons/ai";
 import { HiUserGroup } from "react-icons/hi";
 import { BsPlus } from "react-icons/bs";
 
-
 export default function Contacts({ contacts, changeChat }) {
   const [currentNickname, setCurrentNickname] = useState(undefined);
   const [currentUserId, setCurrentUserId] = useState(undefined);
@@ -62,7 +61,8 @@ export default function Contacts({ contacts, changeChat }) {
     try {
       const data = await toast.promise(
         axios.post(`${createGroupRoute}`, {
-          groupname,
+          chatName: groupname,
+          users: [currentUserId],
         }),
         {
           pending: "Promise is pending",
@@ -71,7 +71,7 @@ export default function Contacts({ contacts, changeChat }) {
         }
       );
       if (data.status === 200) {
-        console.log("Create group successfully")
+        console.log("Create group successfully");
         window.location.reload();
       }
     } catch (err) {
@@ -130,21 +130,17 @@ export default function Contacts({ contacts, changeChat }) {
                 >
                   <div className="avatar">
                     {
-                    // if contact.avatarImage is undefined, use defaultAvatar
+                      // if contact.avatarImage is undefined, use defaultAvatar
                       contact.avatarImage === undefined ? (
-                      <img
-                      src={`${defaultAvatar}`}
-                      className="defaultAvatar"
-                      alt=""
-                    />
-                      ) : (
                         <img
-                      src={`${contact.avatarImage}`}
-                      alt=""
-                    />
+                          src={`${defaultAvatar}`}
+                          className="defaultAvatar"
+                          alt=""
+                        />
+                      ) : (
+                        <img src={`${contact.avatarImage}`} alt="" />
                       )
                     }
-                    
                   </div>
                   <div className="username">
                     <h3>{contact.username}</h3>
@@ -263,7 +259,7 @@ const Container = styled.div`
         max-inline-size: 100%;
       }
     }
-    
+
     .username {
       h2 {
         color: white;
