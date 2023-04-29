@@ -45,9 +45,11 @@ export default function Chat() {
             avatarImage:  undefined,
             email: "",
             username: "",	
+            nickname: "",
             _id: "",
           }
           groupformat.username = g.name;
+          groupformat.nickname = g.name;
           groupformat._id = g._id;
           setContacts((prev) => [...prev, groupformat]);
         });
