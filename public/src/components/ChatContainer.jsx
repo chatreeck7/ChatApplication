@@ -15,13 +15,12 @@ import { useNavigate } from "react-router-dom";
 
 export default function ChatContainer({ currentChat, socket }) {
   const [messages, setMessages] = useState([]);
-  const [currentUser, setCurrentUser] = useState(JSON.parse(
-    localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-  ));
+  const [currentUser, setCurrentUser] = useState(
+    JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY))
+  );
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const navigate = useNavigate();
-
 
   useEffect(async () => {
     if (!localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
@@ -47,10 +46,12 @@ export default function ChatContainer({ currentChat, socket }) {
         });
         setMessages(response.data);
       } else {
-     
-        const response = await axios.post(`${recieveGroupMessageRoute}/${currentUser._id}`, {
-          chatName: currentChat.username,
-        })
+        const response = await axios.post(
+          `${recieveGroupMessageRoute}/${currentUser._id}`,
+          {
+            chatName: currentChat.username,
+          }
+        );
         setMessages(response.data);
       }
     }
@@ -72,18 +73,19 @@ export default function ChatContainer({ currentChat, socket }) {
     const data = await JSON.parse(
       localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
     );
-    socket.current.emit("send-msg", {
-      to: currentChat._id,
-      from: data._id,
-      msg,
-    });
     if (currentChat.email !== "") {
+      socket.current.emit("send-msg", {
+        to: currentChat._id,
+        from: data._id,
+        msg,
+      });
       await axios.post(sendMessageRoute, {
         from: data._id,
         to: currentChat._id,
         message: msg,
       });
     } else {
+      socket.current.emit("send-group-message", msg);
       await axios.post(sendGroupMessageRoute, {
         chatName: currentChat.username,
         message: msg,

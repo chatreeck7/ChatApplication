@@ -76,14 +76,14 @@ module.exports.getMessagesChatGroups = async (req, res, next) => {
     const { chatName } = req.body;
     const chatGroup = await ChatGroup.find({ name: chatName });
     const messages = chatGroup[0].messages;
-    console.log(messages);
+    // console.log(messages);
     const projectedMessages = messages.map((msg) => {
       return {
         fromSelf: msg.sender.toString() === req.params.id,
         message: msg.message.text,
       };
     });
-    console.log(projectedMessages);
+    // console.log(projectedMessages);
     res.json(projectedMessages);
   } catch (ex) {
     next(ex);
