@@ -5,6 +5,13 @@ const authRoutes = require("./routes/auth");
 const messageRoutes = require("./routes/messages");
 const app = express();
 const socket = require("socket.io");
+const formatMessage = require("./utils/messages");
+const {
+  userJoin,
+  getCurrentUser,
+  userLeave,
+  getRoomUsers,
+} = require("./utils/users");
 require("dotenv").config({ path: ".env.local" });
 
 app.use(cors());
@@ -35,6 +42,8 @@ const io = socket(server, {
   },
 });
 
+const botName = "TwT Bot";
+
 global.onlineUsers = new Map();
 io.on("connection", (socket) => {
   global.chatSocket = socket;
@@ -46,6 +55,56 @@ io.on("connection", (socket) => {
     const sendUserSocket = onlineUsers.get(data.to);
     if (sendUserSocket) {
       socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+    }
+  });
+
+  socket.on("join-room", ({ username, room }) => {
+    const user = userJoin(socket.id, username, room);
+
+    console.log(user);
+
+    socket.join(user.room);
+
+    // Welcome current user
+    socket.emit("msg-receive", formatMessage(botName, "Welcome to ChatCord!"));
+
+    // Broadcast when a user connects
+    socket.broadcast
+      .to(user.room)
+      .emit(
+        "msg-receive",
+        formatMessage(botName, `${user.username} has joined the chat`)
+      );
+
+    // Send users and room info
+    io.to(user.room).emit("roomUsers", {
+      room: user.room,
+      users: getRoomUsers(user.room),
+    });
+  });
+
+  // Group Chat Messages
+  socket.on("send-group-message", (msg) => {
+    const user = getCurrentUser(socket.id);
+    console.log("Sender user info,", user);
+    console.log("Send Group Message, ", msg);
+    io.to(user.room).emit("msg-receive", msg);
+  });
+
+  // Run when client disconnects Chat Messages
+  socket.on("disconnect-room", () => {
+    const user = userLeave(socket.id);
+
+    if (user) {
+      io.to(user.room).emit(
+        "msg-receive",
+        formatMessage(botName, `${user.username} has left the chat`)
+      );
+      // Send users and room info
+      io.to(user.room).emit("roomUsers", {
+        room: user.room,
+        users: getRoomUsers(user.room),
+      });
     }
   });
 });
