@@ -1,6 +1,8 @@
 const Messages = require("../models/messageModel");
 const ChatGroup = require("../models/chatGroupModel");
 const mongoose = require("mongoose");
+const User = require("../models/userModel");
+
 module.exports.getMessages = async (req, res, next) => {
   try {
     const { from, to } = req.body;
@@ -14,7 +16,11 @@ module.exports.getMessages = async (req, res, next) => {
     const projectedMessages = messages.map((msg) => {
       return {
         fromSelf: msg.sender.toString() === from,
-        message: msg.message.text,
+        message: {
+          text: msg.message.text,
+          username: msg.message.username,
+          time: msg.message.time,
+        },
       };
     });
     res.json(projectedMessages);
@@ -25,9 +31,9 @@ module.exports.getMessages = async (req, res, next) => {
 
 module.exports.addMessage = async (req, res, next) => {
   try {
-    const { from, to, message } = req.body;
+    const { from, to, message, time, username } = req.body;
     const data = await Messages.create({
-      message: { text: message },
+      message: { text: message, time: time, username: username },
       users: [from, to],
       sender: from,
     });
@@ -80,7 +86,11 @@ module.exports.getMessagesChatGroups = async (req, res, next) => {
     const projectedMessages = messages.map((msg) => {
       return {
         fromSelf: msg.sender.toString() === req.params.id,
-        message: msg.message.text,
+        message: {
+          text: msg.message.text,
+          username: msg.message.username,
+          time: msg.message.time,
+        },
       };
     });
     // console.log(projectedMessages);
@@ -92,7 +102,7 @@ module.exports.getMessagesChatGroups = async (req, res, next) => {
 
 module.exports.addMessageChatGroups = async (req, res, next) => {
   try {
-    const { chatName, message, sender } = req.body;
+    const { chatName, message, sender, time, username } = req.body;
     const chatGroup = await ChatGroup.find({ name: chatName });
     if (chatGroup.length === 0) {
       return res
@@ -104,7 +114,7 @@ module.exports.addMessageChatGroups = async (req, res, next) => {
       {
         $push: {
           messages: {
-            message: { text: message },
+            message: { text: message, time: time, username: username },
             sender: mongoose.Types.ObjectId(sender),
             createAt: new Date(),
             updatedAt: new Date(),
