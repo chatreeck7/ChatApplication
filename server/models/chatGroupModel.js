@@ -14,10 +14,9 @@ const ChatGroupSchema = mongoose.Schema({
   messages: {
     type: Array,
     default: [],
-    text: {
-      type: String,
-      required: true,
-    },
+    username: { type: String, required: true },
+    text: { type: String, required: true },
+    time: { type: String, required: true },
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

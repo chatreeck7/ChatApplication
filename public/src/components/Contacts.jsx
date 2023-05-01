@@ -10,8 +10,9 @@ import { AiTwotoneSetting } from "react-icons/ai";
 import { HiUserGroup } from "react-icons/hi";
 import { BsPlus } from "react-icons/bs";
 
-export default function Contacts({ contacts, changeChat }) {
+export default function Contacts({ contacts, changeChat, socket }) {
   const [currentNickname, setCurrentNickname] = useState(undefined);
+  const [currentUsername, setCurrentUsername] = useState(undefined);
   const [currentUserId, setCurrentUserId] = useState(undefined);
   const [currentUserImage, setCurrentUserImage] = useState(undefined);
   const [currentSelected, setCurrentSelected] = useState(undefined);
@@ -21,10 +22,10 @@ export default function Contacts({ contacts, changeChat }) {
       const data = await JSON.parse(
         localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
       );
+      setCurrentUsername(data.username);
       setCurrentNickname(data.nickname);
       setCurrentUserImage(data.avatarImage);
       setCurrentUserId(data._id);
-      console.log("Hello reload");
     }
     fetchData();
   }, [currentNickname]);
@@ -32,6 +33,23 @@ export default function Contacts({ contacts, changeChat }) {
   const changeCurrentChat = (index, contact) => {
     setCurrentSelected(index);
     changeChat(contact);
+
+    if (contact.email === "") {
+      console.log("currentChat", contact, "Username: ", contact.username);
+
+      // chat with join group
+      socket.current.emit("join-room", {
+        room: contact.username,
+        username: currentUsername,
+      });
+
+      // on the socket for roomUsers
+      socket.current.on("roomUsers", ({ room, users }) => {
+        console.log("roomUsers", room, users);
+      });
+    }else {
+      socket.current.emit("disconnect-room");
+    }
   };
 
   const changeNickname = async (nickname) => {

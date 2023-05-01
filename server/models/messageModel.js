@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const MessageSchema = mongoose.Schema(
   {
     message: {
+      username: { type: String, required: true },
       text: { type: String, required: true },
+      time: { type: String, required: true }
     },
     users: Array,
     sender: {
