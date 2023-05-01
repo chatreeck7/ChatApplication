@@ -49,6 +49,7 @@ module.exports.getAllUsers = async (req, res, next) => {
       "email",
       "username",
       "avatarImage",
+      "nickname",
       "_id",
     ]);
     return res.json(users);
