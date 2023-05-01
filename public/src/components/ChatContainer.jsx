@@ -44,6 +44,7 @@ export default function ChatContainer({ currentChat, socket }) {
           from: data._id,
           to: currentChat._id,
         });
+        console.log(response);
         setMessages(response.data);
       } else {
         const response = await axios.post(
@@ -77,19 +78,24 @@ export default function ChatContainer({ currentChat, socket }) {
       socket.current.emit("send-msg", {
         to: currentChat._id,
         from: data._id,
-        msg,
+        msg: msg.text,
+        username: data.username,
       });
       await axios.post(sendMessageRoute, {
         from: data._id,
         to: currentChat._id,
-        message: msg,
+        message: msg.text,
+        time: msg.time,
+        username: data.username,
       });
     } else {
-      socket.current.emit("send-group-message", msg);
+      socket.current.emit("send-group-message", msg.text);
       await axios.post(sendGroupMessageRoute, {
         chatName: currentChat.username,
-        message: msg,
+        message: msg.text,
         sender: data._id,
+        time: msg.time,
+        username: data.username,
       });
     }
     const msgs = [...messages];
@@ -98,11 +104,9 @@ export default function ChatContainer({ currentChat, socket }) {
   };
 
   useEffect(() => {
-    if (socket.current) {
-      socket.current.on("msg-recieve", (msg) => {
-        setArrivalMessage({ fromSelf: false, message: msg });
-      });
-    }
+    socket.current.on("msg-recieve", (msg) => {
+      setArrivalMessage({ fromSelf: false, message: msg });
+    });
   }, []);
 
   useEffect(() => {
@@ -140,14 +144,21 @@ export default function ChatContainer({ currentChat, socket }) {
                 }`}
               >
                 <div className="content ">
-                  <p>{message.message}</p>
+                  <p>
+                    ({message.message.username}){message.message.time}
+                  </p>
+                  <br />
+                  <p>{message.message.text}</p>
                 </div>
               </div>
             </div>
           );
         })}
       </div>
-      <ChatInput handleSendMsg={handleSendMsg} />
+      <ChatInput
+        handleSendMsg={handleSendMsg}
+        username={currentUser.username}
+      />
     </Container>
   );
 }

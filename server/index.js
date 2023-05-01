@@ -54,7 +54,7 @@ io.on("connection", (socket) => {
   socket.on("send-msg", (data) => {
     const sendUserSocket = onlineUsers.get(data.to);
     if (sendUserSocket) {
-      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+      socket.to(sendUserSocket).emit("msg-recieve", formatMessage(data.username, data.msg));
     }
   });
 
@@ -64,7 +64,9 @@ io.on("connection", (socket) => {
     console.log(user);
 
     socket.join(user.room);
-
+    console.log(
+      `${user.username} has joined Room ${room} with ID ${socket.id}`
+    );
     // Welcome current user
     socket.emit("msg-receive", formatMessage(botName, "Welcome to ChatCord!"));
 
@@ -88,7 +90,13 @@ io.on("connection", (socket) => {
     const user = getCurrentUser(socket.id);
     console.log("Sender user info,", user);
     console.log("Send Group Message, ", msg);
-    io.to(user.room).emit("msg-receive", msg);
+    console.log("Send to room,", user.room);
+    console.log("User in the room,", getRoomUsers(user.room));
+    const users = getRoomUsers(user.room) 
+    for (let i = 0; i < users.length; i++) {
+        socket.to(users[i].id).emit("msg-recieve", formatMessage(user.username, msg));
+    }
+    // io.to(user.room).emit("msg-receive", { msg: msg });
   });
 
   // Run when client disconnects Chat Messages

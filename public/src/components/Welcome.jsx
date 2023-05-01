@@ -9,7 +9,7 @@ export default function Welcome({ socket }) {
         localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
       ).username
     );
-    if (socket.current) socket.current.emit("disconnect-room");
+    await socket.current.emit("disconnect-room");
   }, []);
   return (
     <Container>
